@@ -10,7 +10,7 @@ client = genai.Client(api_key="AIzaSyARW29vXwnRaaIIbIeiHi5S8Nx7hhiMsAo")
 
 # Initialize Pinecone
 pinecone.init(api_key="pcsk_665KeU_GkauQNwvM8hqqaKkJALJYXNQABaxkzLQQQCSebQ8jxLWkmvSrJaAW2D4gw4kziW")
-index = pinecone.Index("megactivo-index-1")
+index = pinecone.Index("megactivo-index-1-cxritoj.svc.aped-4627-b74a")
 
 # get all friends
 @app.route("/", methods=["GET"])
