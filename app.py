@@ -15,7 +15,8 @@ pinecone = Pinecone(
 )
 
 # Access the index through the Pinecone instance
-index = pinecone.Index(name="megactivo-index-1-cxritoj.svc.aped-4627-b74a")
+# index = pinecone.Index(name="megactivo-index-1-cxritoj.svc.aped-4627-b74a")
+index = pinecone.Index(name="megactivo-index-1")
 
 # get all friends
 @app.route("/", methods=["GET"])
