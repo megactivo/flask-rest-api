@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from google import genai
-from pinecone import Pinecone, Index, ServerlessSpec
+from pinecone import Pinecone, ServerlessSpec
 
 app = Flask(__name__)
 CORS(app)
@@ -14,8 +14,8 @@ pinecone = Pinecone(
     environment="ns_megactivo_contabilidad, ns_megactivo_nomina"  # Replace with your Pinecone environment
 )
 
-# Access the index
-index = Index(name="megactivo-index-1-cxritoj.svc.aped-4627-b74a", pinecone=pinecone)
+# Access the index through the Pinecone instance
+index = pinecone.Index(name="megactivo-index-1-cxritoj.svc.aped-4627-b74a")
 
 # get all friends
 @app.route("/", methods=["GET"])
