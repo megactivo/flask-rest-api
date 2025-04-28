@@ -44,8 +44,12 @@ def create_completion():
         question = data.get("question")
 
         # Generate embeddings for the question
-        question_embedded = client.models.generate_embeddings(
-            model="gemini-2.0-flash", contents=question
+        # question_embedded = client.models.generate_embeddings(
+        #             model="gemini-2.0-flash", contents=question
+        # ).embeddings
+
+        question_embedded = client.models.embed_content(
+            model="gemini-embedding-exp-03-07", contents=question
         ).embeddings
 
         # Query Pinecone for the top 10 results
