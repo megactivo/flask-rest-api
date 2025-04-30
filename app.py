@@ -16,7 +16,7 @@ app = Flask(__name__)
 CORS(app)
 
 client = genai.Client(api_key=google_key)
-clientOAI = OpenAI()
+clientOAI = OpenAI(api_key=openai_key)
 
 # Initialize Pinecone
 # pinecone = Pinecone(
