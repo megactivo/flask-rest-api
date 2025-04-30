@@ -4,7 +4,6 @@ from google import genai
 from google.genai import types
 from pinecone import Pinecone, ServerlessSpec
 from openai import OpenAI
-
 import os
 from dotenv import load_dotenv
 
