@@ -1,18 +1,28 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from google import genai
+from google.genai import types
 from pinecone import Pinecone, ServerlessSpec
+from openai import OpenAI
 
 app = Flask(__name__)
 CORS(app)
 
 client = genai.Client(api_key="AIzaSyARW29vXwnRaaIIbIeiHi5S8Nx7hhiMsAo")
+clientOAI = OpenAI(api_key="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")
 
 # Initialize Pinecone
+# pinecone = Pinecone(
+#     api_key="pcsk_665KeU_GkauQNwvM8hqqaKkJALJYXNQABaxkzLQQQCSebQ8jxLWkmvSrJaAW2D4gw4kziW",
+#     environment="ns_megactivo_contabilidad, ns_megactivo_nomina"  # Replace with your Pinecone environment
+# )
+
 pinecone = Pinecone(
     api_key="pcsk_665KeU_GkauQNwvM8hqqaKkJALJYXNQABaxkzLQQQCSebQ8jxLWkmvSrJaAW2D4gw4kziW",
-    environment="ns_megactivo_contabilidad, ns_megactivo_nomina"  # Replace with your Pinecone environment
+    environment="us-east-1"  # Replace with your Pinecone environment
 )
+
+# print(pinecone.describe_index(name="megactivo-index-1"))
 
 # Access the index through the Pinecone instance
 # index = pinecone.Index(name="megactivo-index-1-cxritoj.svc.aped-4627-b74a")
@@ -43,21 +53,34 @@ def create_completion():
         data = request.json
         question = data.get("question")
 
-        resu = client.models.embed_content(
-            model="gemini-embedding-exp-03-07", contents=question
-        )
-        question_embedded = resu.embeddings[0].values
-        print(question_embedded)
+        # resu = client.models.embed_content(
+        #     model="gemini-embedding-exp-03-07", contents=question,
+        #     config=types.EmbedContentConfig(task_type="SEMANTIC_SIMILARITY")
+        # )
+        # question_embedded = resu.embeddings[0].values
+        # Reduce the embedding dimension to match the Pinecone index
+        # question_embedded = question_embedded[:1536]  # Use the first 1536 values
 
+        resu = clientOAI.embeddings.create(
+            input=question,
+            model="text-embedding-3-small"
+        )
+        question_embedded = resu.data[0].embedding
+        
         # Query Pinecone for the top 10 results
         pinecone_results = index.query(
             vector=question_embedded,
-            top_k=10,
-            include_metadata=True
+            top_k=4,
+            include_metadata=True,
+            namespace="ns_megactivo_contabilidad",  # Replace with your Pinecone namespace
         )
 
         # Extract relevant information from Pinecone results
         top_results = [result['metadata']['text'] for result in pinecone_results['matches']]
+
+        # print("Top results from Pinecone...")
+        # for i, result in enumerate(top_results):
+        #     print(f"Result {i + 1}: {result}")
 
         # Append the top results to the question
         question += "\n\nGround with this knowledge: " + "\n".join(top_results)
