@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 openai_key = os.getenv('OPENAI_API_KEY')
 google_key = os.getenv('GOOGLE_API_KEY')
+pinecone_key = os.getenv('PINECONE_API_KEY')
 
 app = Flask(__name__)
 CORS(app)
@@ -19,12 +20,12 @@ clientOAI = OpenAI(api_key=openai_key)
 
 # Initialize Pinecone
 # pinecone = Pinecone(
-#     api_key="pcsk_665KeU_GkauQNwvM8hqqaKkJALJYXNQABaxkzLQQQCSebQ8jxLWkmvSrJaAW2D4gw4kziW",
+#     api_key=google_key,
 #     environment="ns_megactivo_contabilidad, ns_megactivo_nomina"  # Replace with your Pinecone environment
 # )
 
 pinecone = Pinecone(
-    api_key="pcsk_665KeU_GkauQNwvM8hqqaKkJALJYXNQABaxkzLQQQCSebQ8jxLWkmvSrJaAW2D4gw4kziW",
+    api_key=pinecone_key,
     environment="us-east-1"  # Replace with your Pinecone environment
 )
 
