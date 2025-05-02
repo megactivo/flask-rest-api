@@ -12,6 +12,9 @@ openai_key = os.getenv('OPENAI_API_KEY')
 google_key = os.getenv('GOOGLE_API_KEY')
 pinecone_key = os.getenv('PINECONE_API_KEY')
 
+if not openai_key or not google_key or not pinecone_key:
+    raise ValueError("One or more environment variables are not set.")
+
 app = Flask(__name__)
 CORS(app)
 
@@ -32,7 +35,6 @@ pinecone = Pinecone(
 # print(pinecone.describe_index(name="megactivo-index-1"))
 
 # Access the index through the Pinecone instance
-# index = pinecone.Index(name="megactivo-index-1-cxritoj.svc.aped-4627-b74a")
 index = pinecone.Index(name="megactivo-index-1")
 
 # get all friends
