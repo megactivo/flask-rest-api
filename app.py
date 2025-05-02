@@ -4,20 +4,21 @@ from google import genai
 from google.genai import types
 from pinecone import Pinecone, ServerlessSpec
 from openai import OpenAI
-# import os
-# from dotenv import load_dotenv
+import os
+from dotenv import load_dotenv
 
-# load_dotenv()
-# openai_key = os.getenv('OPENAI_API_KEY')
-# openai_key = os.getenv('OPENAI_API_KEY')
-# google_key = os.getenv('GOOGLE_API_KEY')
-# pinecone_key = os.getenv('PINECONE_API_KEY')
+load_dotenv()
+openai_key = os.getenv('OPENAI_API_KEY')
+google_key = os.getenv('GOOGLE_API_KEY')
+pinecone_key = os.getenv('PINECONE_API_KEY')
 
 app = Flask(__name__)
 CORS(app)
 
-client = genai.Client(api_key="AIzaSyARW29vXwnRaaIIbIeiHi5S8Nx7hhiMsAo")
-clientOAI = OpenAI(api_key="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")
+# client = genai.Client(api_key="AIzaSyARW29vXwnRaaIIbIeiHi5S8Nx7hhiMsAo")
+# clientOAI = OpenAI(api_key="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")
+client = genai.Client(api_key=google_key)
+clientOAI = OpenAI(api_key=openai_key)
 
 # Initialize Pinecone
 # pinecone = Pinecone(
@@ -26,7 +27,7 @@ clientOAI = OpenAI(api_key="sk-proj-7lY73NE-ryFsvsBKqgRA_GH-4R0iVry1q92wJGSciggS
 # )
 
 pinecone = Pinecone(
-    api_key="pcsk_665KeU_GkauQNwvM8hqqaKkJALJYXNQABaxkzLQQQCSebQ8jxLWkmvSrJaAW2D4gw4kziW",
+    api_key=pinecone_key,
     environment="us-east-1"  # Replace with your Pinecone environment
 )
 
