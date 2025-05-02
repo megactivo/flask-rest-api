@@ -15,8 +15,6 @@ pinecone_key = os.getenv('PINECONE_API_KEY')
 app = Flask(__name__)
 CORS(app)
 
-# client = genai.Client(api_key="AIzaSyARW29vXwnRaaIIbIeiHi5S8Nx7hhiMsAo")
-# clientOAI = OpenAI(api_key="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")
 client = genai.Client(api_key=google_key)
 clientOAI = OpenAI(api_key=openai_key)
 
