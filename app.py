@@ -61,6 +61,29 @@ def create_completion():
     try:
         data = request.json
         question = data.get("question")
+        module = data.get("module")
+
+        # Assign requested_namespace based on the value of module
+        if module.upper() == "CONTABILIDAD":
+            requested_namespace = "ns_megactivo_contabilidad"
+        elif module.upper() == "CLIENTES":
+            requested_namespace = "ns_megactivo_fe"
+        elif module.upper() == "FACTURACION_ELECTRONICA":
+            requested_namespace = "ns_megactivo_fe"
+        elif module.upper() == "PROVEEDORES":
+            requested_namespace = "ns_megactivo_proveedores"
+        elif module.upper() == "NOMINA_ELECTRONICA":
+            requested_namespace = "ns_megactivo_nomina"
+        elif module.upper() == "CONFIGURACION":
+            requested_namespace = "ns_megactivo_configuracion"
+        elif module.upper() == "INVENTARIOS":
+            requested_namespace = "ns_megactivo_inventarios"
+        elif module.upper() == "POS":
+            requested_namespace = "ns_megactivo_pos"
+        elif module.upper() == "INFORMACION_EXOGENA":
+            requested_namespace = "ns_megactivo_informacionexogena"
+        else:
+            return jsonify({"error": "Invalid module value"}), 400
 
         # resu = client.models.embed_content(
         #     model="gemini-embedding-exp-03-07", contents=question,
@@ -70,6 +93,7 @@ def create_completion():
         # Reduce the embedding dimension to match the Pinecone index
         # question_embedded = question_embedded[:1536]  # Use the first 1536 values
 
+        # Generate embeddings for the question
         resu = clientOAI.embeddings.create(
             input=question,
             model="text-embedding-ada-002"
@@ -79,9 +103,9 @@ def create_completion():
         # Query Pinecone for the top 10 results
         pinecone_results = index.query(
             vector=question_embedded,
-            top_k=4,
+            top_k=10,
             include_metadata=True,
-            namespace="ns_megactivo_contabilidad",  # Replace with your Pinecone namespace
+            namespace=requested_namespace,  # Replace with your Pinecone namespace
         )
 
         # Extract relevant information from Pinecone results
@@ -92,11 +116,12 @@ def create_completion():
         #     print(f"Result {i + 1}: {result}")
 
         # Append the top results to the question
-        question += "\n\nGround with this knowledge: " + "\n".join(top_results)
+        question += "\n\nBasate en este conocimiento para dar tu respuesta: " + "\n".join(top_results)
 
         # Generate a response using the LLM
         response = client.models.generate_content(
-            model="gemini-2.0-flash", contents=question
+            model="gemini-2.5-pro-exp-03-25", 
+            contents=question
         )
 
         return jsonify({"answer": response.text}), 201
