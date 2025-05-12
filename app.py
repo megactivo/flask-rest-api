@@ -25,8 +25,8 @@ if not openai_key or not google_key or not pinecone_key:
     raise ValueError("One or more environment variables are not set.")
 
 app = Flask(__name__)
-# CORS(app)
-CORS(app, resources={r"/*": {"origins": "https://aimegactivo.web.app/#/nomina"}}, methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
+CORS(app)
+# CORS(app, resources={r"/*": {"origins": "https://aimegactivo.web.app/#/nomina"}}, methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
 
 client = genai.Client(api_key=google_key)
 clientOAI = OpenAI(api_key=openai_key)
