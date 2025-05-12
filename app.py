@@ -156,8 +156,7 @@ def create_completion():
             )
         )
 
-        return jsonify({"answer": response.text}), 201
-        # return jsonify({"questionandknowledge": question}), 201
+        return jsonify(response.json()), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
