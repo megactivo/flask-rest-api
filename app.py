@@ -7,11 +7,12 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 from pydantic import BaseModel
+import json
 
 class Requerimiento(BaseModel):
     answer: str
-    answer_rating: int
-    request_rating: int
+    answer_rating: str
+    request_rating: str
     tags: list[str]
     browsable: bool
 
@@ -108,7 +109,7 @@ def create_completion():
             model="text-embedding-ada-002"
         )
         question_embedded = resu.data[0].embedding
-        
+
         # Query Pinecone for the top 10 results
         pinecone_results = index.query(
             vector=question_embedded,
@@ -123,6 +124,7 @@ def create_completion():
         # print("Top results from Pinecone...")
         # for i, result in enumerate(top_results):
         #     print(f"Result {i + 1}: {result}")
+
 
         # Append the top results to the question
         question += "\n\nBasate en este conocimiento para dar tu respuesta: " + "\n".join(top_results)
@@ -145,6 +147,7 @@ def create_completion():
         Campo "browsable": Indica true en este campo si la información proporcionada no es suficiente para responder completamente la consulta del usuario y crees que buscar en internet podría mejorar la respuesta; de lo contrario indica false.
 
         """
+
         # Generate a response using the LLM
         response = client.models.generate_content(
             model="gemini-2.5-pro-exp-03-25", 
@@ -156,7 +159,20 @@ def create_completion():
             )
         )
 
-        return jsonify(response.json()), 201
+        print("Request received 007")
+
+        # Extract the "text" field from the response
+        try:
+            response_data = json.loads(response.model_dump_json())
+            response_text = response_data["candidates"][0]["content"]["parts"][0]["text"]
+        except (KeyError, IndexError) as e:
+            return jsonify({"error": "Failed to extract the 'text' field from the response", "details": str(e)}), 500
+
+        print("Request received 008")
+
+        # Return only the extracted "text" field
+        return response_text, 201
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
