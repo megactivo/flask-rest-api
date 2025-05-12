@@ -6,6 +6,14 @@ from pinecone import Pinecone, ServerlessSpec
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
+from pydantic import BaseModel
+
+class Requerimiento(BaseModel):
+    answer: str
+    answer_rating: int
+    request_rating: int
+    tags: list[str]
+    browsable: bool
 
 load_dotenv()
 openai_key = os.getenv('OPENAI_API_KEY')
@@ -20,6 +28,7 @@ CORS(app)
 
 client = genai.Client(api_key=google_key)
 clientOAI = OpenAI(api_key=openai_key)
+
 
 # Initialize Pinecone
 # pinecone = Pinecone(
@@ -107,7 +116,7 @@ def create_completion():
             include_metadata=True,
             namespace=requested_namespace,  # Replace with your Pinecone namespace
         )
-
+        
         # Extract relevant information from Pinecone results
         top_results = [result['metadata']['text'] for result in pinecone_results['matches']]
 
@@ -118,10 +127,33 @@ def create_completion():
         # Append the top results to the question
         question += "\n\nBasate en este conocimiento para dar tu respuesta: " + "\n".join(top_results)
 
+        system_prompt = """
+        "inquietud": Se te indicará indicar un texto con una inquietud de un usuario de la app megactivo.com
+
+        "Contexto": Tambien se te indicarán 10 textos que son el contexto en que debes basarte para dar tu respuesta.
+
+        Tu respuesta debe consistir en un único objeto JSON con los siguientes campos:  "answer" que es de tipo Text, los campos “answer_rating” y “request_rating” que son de tipo Number, el campo "tags" que es un list o array de Text, y el campo "browsable" que es de tipo Boolean.
+
+        Campo "answer": Ofrece en una etiqueta <div> HTML formateada de forma moderna, una respuesta completa, detallada y útil a la inquietud, integrando toda la información pertinente y enlaces a videos si resultan relevantes. Utiliza un tono amigable, claro y orientado a brindar soluciones. Si no dispones de suficiente información para responder la inquietud, deja el campo "answer" vacío y asigna 0 al campo "answer_rating". 
+
+        Campo "answer_rating": Califica en este campo del 0 al 10 qué tan completa y adecuada es la respuesta proporcionada en el campo "answer".
+
+        Campo "request_rating": Califica en este campo del 0 al 10 el grado de claridad y pertinencia de la solicitud o inquietud del usuario.
+
+        Campo "tags": Proporciona en este campo una lista de etiquetas o tags que permitan clasificar la inquietud (por ejemplo: "saldos", "cartera", "compras", "problemas de saldos", "problemas de envío a la DIAN", etc.).
+
+        Campo "browsable": Indica true en este campo si la información proporcionada no es suficiente para responder completamente la consulta del usuario y crees que buscar en internet podría mejorar la respuesta; de lo contrario indica false.
+
+        """
         # Generate a response using the LLM
         response = client.models.generate_content(
             model="gemini-2.5-pro-exp-03-25", 
-            contents=question
+            contents=question,
+            config=types.GenerateContentConfig(
+                system_instruction=system_prompt,
+                response_mime_type="application/json",
+                response_schema=Requerimiento
+            )
         )
 
         return jsonify({"answer": response.text}), 201
