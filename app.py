@@ -28,7 +28,7 @@ app = Flask(__name__)
 CORS(app)
 # CORS(app, resources={r"/*": {"origins": "https://aimegactivo.web.app/#/nomina"}}, methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
 # CORS(app, resources={r"/*": {"origins": "*"}}, methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
-  CORS(app, resources={r"/*": {"origins": "https://aimegactivo.web.app"}}, methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
+CORS(app, resources={r"/*": {"origins": "https://aimegactivo.web.app"}}, methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
 
 # @app.after_request
 # def add_cors_headers(response):
