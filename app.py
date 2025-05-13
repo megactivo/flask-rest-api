@@ -6,15 +6,7 @@ from pinecone import Pinecone, ServerlessSpec
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
-from pydantic import BaseModel
 import json
-
-class Requerimiento(BaseModel):
-    answer: str
-    answer_rating: str
-    request_rating: str
-    tags: list[str]
-    browsable: bool
 
 load_dotenv()
 openai_key = os.getenv('OPENAI_API_KEY')
@@ -25,14 +17,7 @@ if not openai_key or not google_key or not pinecone_key:
     raise ValueError("One or more environment variables are not set.")
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "https://aimegactivo.web.app"}}, methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
-
-@app.after_request
-def add_cors_headers(response):
-    response.headers["Access-Control-Allow-Origin"] = "https://aimegactivo.web.app"
-    response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-    return response
+CORS(app)
 
 client = genai.Client(api_key=google_key)
 clientOAI = OpenAI(api_key=openai_key)
@@ -71,14 +56,6 @@ def say_hello():
         return jsonify({"hello": "hello " + name}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-@app.route("/completion", methods=["OPTIONS"])
-def handle_options():
-    response = jsonify({"message": "CORS preflight request successful"})
-    response.headers["Access-Control-Allow-Origin"] = "https://aimegactivo.web.app"
-    response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-    return response
 
 # create a completion
 @app.route("/completion", methods=["POST"])
@@ -169,8 +146,7 @@ def create_completion():
             contents=question,
             config=types.GenerateContentConfig(
                 system_instruction=system_prompt,
-                response_mime_type="application/json",
-                response_schema=Requerimiento
+                response_mime_type="application/json"
             )
         )
 
