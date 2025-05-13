@@ -25,14 +25,11 @@ if not openai_key or not google_key or not pinecone_key:
     raise ValueError("One or more environment variables are not set.")
 
 app = Flask(__name__)
-# CORS(app)
-# CORS(app, resources={r"/*": {"origins": "https://aimegactivo.web.app/#/nomina"}}, methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
-# CORS(app, resources={r"/*": {"origins": "*"}}, methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
-CORS(app, resources={r"/*": {"origins": "*"}}, methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
+CORS(app, resources={r"/*": {"origins": "https://aimegactivo.web.app"}}, methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
 
 @app.after_request
 def add_cors_headers(response):
-    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Origin"] = "https://aimegactivo.web.app"
     response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type"
     return response
@@ -78,7 +75,7 @@ def say_hello():
 @app.route("/completion", methods=["OPTIONS"])
 def handle_options():
     response = jsonify({"message": "CORS preflight request successful"})
-    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Origin"] = "https://aimegactivo.web.app"
     response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type"
     return response
@@ -177,7 +174,6 @@ def create_completion():
             )
         )
 
-        print("Request received 007")
 
         # Extract the "text" field from the response
         try:
@@ -185,8 +181,6 @@ def create_completion():
             response_text = response_data["candidates"][0]["content"]["parts"][0]["text"]
         except (KeyError, IndexError) as e:
             return jsonify({"error": "Failed to extract the 'text' field from the response", "details": str(e)}), 500
-
-        print("Request received 008")
 
         # Return only the extracted "text" field
         return response_text, 201
