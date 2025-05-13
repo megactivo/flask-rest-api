@@ -25,15 +25,16 @@ if not openai_key or not google_key or not pinecone_key:
     raise ValueError("One or more environment variables are not set.")
 
 app = Flask(__name__)
-CORS(app)
+# CORS(app)
 # CORS(app, resources={r"/*": {"origins": "https://aimegactivo.web.app/#/nomina"}}, methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
+CORS(app, resources={r"/*": {"origins": "*"}}, methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
 
-@app.after_request
-def add_cors_headers(response):
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-    return response
+# @app.after_request
+# def add_cors_headers(response):
+#     response.headers["Access-Control-Allow-Origin"] = "*"
+#     response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+#     response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+#     return response
 
 client = genai.Client(api_key=google_key)
 clientOAI = OpenAI(api_key=openai_key)
