@@ -25,9 +25,10 @@ if not openai_key or not google_key or not pinecone_key:
     raise ValueError("One or more environment variables are not set.")
 
 app = Flask(__name__)
-# CORS(app)
+CORS(app)
 # CORS(app, resources={r"/*": {"origins": "https://aimegactivo.web.app/#/nomina"}}, methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
-CORS(app, resources={r"/*": {"origins": "*"}}, methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
+# CORS(app, resources={r"/*": {"origins": "*"}}, methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
+  CORS(app, resources={r"/*": {"origins": "https://aimegactivo.web.app"}}, methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
 
 # @app.after_request
 # def add_cors_headers(response):
@@ -73,6 +74,14 @@ def say_hello():
         return jsonify({"hello": "hello " + name}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route("/completion", methods=["OPTIONS"])
+def handle_options():
+    response = jsonify({"message": "CORS preflight request successful"})
+    response.headers["Access-Control-Allow-Origin"] = "https://aimegactivo.web.app"
+    response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    return response
 
 # create a completion
 @app.route("/completion", methods=["POST"])
